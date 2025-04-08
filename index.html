@@ -1,0 +1,259 @@
+Conversation opened. 1 unread message.
+
+Skip to content
+Using Gmail with screen readers
+1 of 8,595
+Hsh
+Inbox
+
+Flapjack I <mathew.ashanahan@gmail.com>
+2:22 PM (0 minutes ago)
+to me
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Zelda-Inspired Advanced Game</title>
+  <style>
+    canvas { background: #e0f7fa; display: block; margin: 0 auto; border: 1px solid #000; }
+  </style>
+</head>
+<body>
+<canvas id="gameCanvas" width="600" height="400"></canvas>
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = ca,
+   9
+ z 2a
+  knvas.getContext("2d");
+
+class GameObject {
+  constructor(x, y, size, color) {
+    this.x = x;
+    this.y = y;
+    this.size = size;
+    this.color = color;
+  }
+
+  draw() {
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.x, this.y, this.size, this.size);
+  }
+
+  isNear(other, range = 30) {
+    return Math.abs(this.x - other.x) < range && Math.abs(this.y - other.y) < range;
+  }
+}
+
+class Player extends GameObject {
+  constructor(x, y) {
+    super(x, y, 20, "green");
+    this.speed = 2;
+  }
+
+  move(keys) {
+    if (keys["ArrowUp"]) this.y -= this.speed;
+    if (keys["ArrowDown"]) this.y += this.speed;
+    if (keys["ArrowLeft"]) this.x -= this.speed;
+    if (keys["ArrowRight"]) this.x += this.speed;
+  }
+}
+
+class NPC extends GameObject {
+  constructor(x, y, message) {
+    super(x, y, 20, "blue");
+    this.message = message;
+  }
+
+  speakIfNear(player) {
+    if (this.isNear(player)) {
+      ctx.fillStyle = "black";
+      ctx.font = "14px Arial";
+      ctx.fillText(this.message, this.x - 20, this.y - 10);
+    }
+  }
+}
+
+let keys = {};
+document.addEventListener('keydown', e => keys[e.key] = true);
+document.addEventListener('keyup', e => keys[e.key] = false);
+
+const player = new Player(100, 100);
+const npc = new NPC(300, 200, "Welcome to the Forest of Time!");
+
+function update() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  player.move(keys);
+  player.draw();
+  npc.draw();
+  npc.speakIfNear(player);
+  requestAnimationFrame(update);
+}
+
+update();
+</script>
+  
+  <script>
+let isDay = true;
+
+class World {
+  constructor() {
+    this.dayColor = "#e0f7fa";
+    this.nightColor = "#1a237e";
+  }
+
+  get backgroundColor() {
+    return isDay ? this.dayColor : this.nightColor;
+  }
+
+  toggleTime() {
+    isDay = !isDay;
+  }
+}
+
+const world = new World();
+
+// Extend NPC dialog to change based on time
+npc.speakIfNear = function(player) {
+  if (this.isNear(player)) {
+    const msg = isDay ? this.message : "Be careful, it's dangerous at night...";
+    ctx.fillStyle = "white";
+    ctx.font = "14px Arial";
+    ctx.fillText(msg, this.x - 20, this.y - 10);
+  }
+};
+
+// Add toggle for time with 'T'
+document.addEventListener('keydown', e => {
+  if (e.key.toLowerCase() === "t") world.toggleTime();
+});
+
+function update() {
+  ctx.fillStyle = world.backgroundColor;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  player.move(keys);
+  player.draw();
+  npc.draw();
+  npc.speakIfNear(player);
+  requestAnimationFrame(update);
+}
+
+update();
+</script>
+  
+  <script>
+// Enemy and puzzle object classes
+class Enemy extends GameObject {
+  constructor(x, y) {
+    super(x, y, 20, "red");
+    this.health = 3;
+  }
+
+  takeDamage() {
+    this.health--;
+    if (this.health <= 0) this.dead = true;
+  }
+
+  draw() {
+    if (!this.dead) super.draw();
+  }
+}
+
+class PuzzleStone extends GameObject {
+  constructor(x, y) {
+    super(x, y, 20, "gray");
+  }
+
+  move(keys) {
+    if (player.isNear(this)) {
+      if (keys["ArrowUp"]) this.y -= 1;
+      if (keys["ArrowDown"]) this.y += 1;
+      if (keys["ArrowLeft"]) this.x -= 1;
+      if (keys["ArrowRight"]) this.x += 1;
+    }
+  }
+}
+
+class PuzzlePlate extends GameObject {
+  constructor(x, y) {
+    super(x, y, 20, "yellow");
+    this.activated = false;
+  }
+
+  check(puzzleStone) {
+    if (this.isNear(puzzleStone, 10)) {
+      this.activated = true;
+      this.color = "lime";
+    }
+  }
+}
+
+const enemy = new Enemy(400, 150);
+const stone = new PuzzleStone(100, 300);
+const plate = new PuzzlePlate(250, 300);
+let menuOpen = false;
+let attackCooldown = 0;
+
+// New key logic
+document.addEventListener("keydown", e => {
+  keys[e.key] = true;
+
+  if (e.key === " ") {
+    if (attackCooldown === 0) {
+      if (player.isNear(enemy)) enemy.takeDamage();
+      attackCooldown = 20;
+    }
+  }
+
+  if (e.key.toLowerCase() === "a") {
+    if (player.isNear(npc)) alert("NPC says: " + npc.message);
+  }
+
+  if (e.key.toLowerCase() === "z") {
+    menuOpen = !menuOpen;
+  }
+});
+
+function drawMenu() {
+  ctx.fillStyle = "black";
+  ctx.fillRect(100, 100, 400, 200);
+  ctx.fillStyle = "white";
+  ctx.font = "18px Arial";
+  ctx.fillText("Inventory (Coming Soon)", 220, 200);
+}
+
+function update() {
+  ctx.fillStyle = world.backgroundColor;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (attackCooldown > 0) attackCooldown--;
+
+  if (!menuOpen) {
+    player.move(keys);
+    stone.move(keys);
+  }
+
+  plate.check(stone);
+
+  player.draw();
+  npc.draw();
+  npc.speakIfNear(player);
+  enemy.draw();
+  stone.draw();
+  plate.draw();
+
+  if (plate.activated) {
+    ctx.fillStyle = "black";
+    ctx.font = "14px Arial";
+    ctx.fillText("A secret path has opened...", 200, 50);
+  }
+
+  if (menuOpen) drawMenu();
+
+  requestAnimationFrame(update);
+}
+update();
+</script>
+  
+</body>
+</html>
